@@ -9,7 +9,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://syssolutionspk.com"),
+  metadataBase: new URL(process.env.SITE_URL || "https://syssolutionspk.com"),
   title: "SYS Solutions | Carefully checked laptops in Rawalpindi",
   description: "Find your next laptop with SYS Solutions. Carefully checked laptops, workstations, honest guidance and fast delivery from TechnoCity II, Rawalpindi.",
   applicationName: "SYS Solutions",

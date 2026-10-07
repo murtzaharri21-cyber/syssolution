@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { coupons, orders, products } from "@/db/schema";
 import { normalizeCouponCode, validateCoupon } from "@/lib/coupons";
 
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
   if (name.length < 2 || phone.length < 7) return NextResponse.json({ error: "Add your name and a reachable phone number." }, { status: 400 });
   if (fulfillment === "delivery" && address.length < 8) return NextResponse.json({ error: "Add a delivery address so we can reach you." }, { status: 400 });
 
+  const db = getDb();
   const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
   if (!product || !product.isAvailable) return NextResponse.json({ error: "That laptop is no longer available." }, { status: 404 });
   if (product.price === null || product.price < 1) return NextResponse.json({ error: "This laptop cannot be ordered just yet." }, { status: 400 });

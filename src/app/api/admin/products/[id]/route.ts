@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { parseProductPayload } from "@/lib/admin-validation";
@@ -24,6 +24,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Add a name, brand, category, processor, memory, storage, and display." }, { status: 400 });
   }
 
+  const db = getDb();
   const [product] = await db.update(products).set(payload).where(eq(products.id, id)).returning();
   if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
   return NextResponse.json(product);
@@ -40,6 +41,7 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Invalid product." }, { status: 400 });
   }
 
+  const db = getDb();
   const [deleted] = await db.delete(products).where(eq(products.id, id)).returning({ id: products.id });
   if (!deleted) return NextResponse.json({ error: "Product not found." }, { status: 404 });
   return NextResponse.json({ success: true });

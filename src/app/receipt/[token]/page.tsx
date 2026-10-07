@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Logo } from "@/components/logo";
 import ReceiptActions from "@/components/receipt-actions";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { orders } from "@/db/schema";
 import { getStoreSettings } from "@/lib/catalog";
 import { formatPrice } from "@/lib/money";
@@ -20,6 +20,7 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
   const { token } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(token)) notFound();
 
+  const db = getDb();
   const [[order], settings] = await Promise.all([
     db.select().from(orders).where(eq(orders.receiptToken, token)).limit(1),
     getStoreSettings(),

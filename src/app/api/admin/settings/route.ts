@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { siteSettings } from "@/db/schema";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { ensureStoreSeeded } from "@/lib/catalog";
@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Admin sign-in required." }, { status: 401 });
   }
   await ensureStoreSeeded();
+  const db = getDb();
   const [settings] = await db.select().from(siteSettings).where(eq(siteSettings.id, 1)).limit(1);
   return NextResponse.json(settings);
 }
@@ -41,6 +42,7 @@ export async function PUT(request: Request) {
   }
 
   await ensureStoreSeeded();
+  const db = getDb();
   const [settings] = await db
     .update(siteSettings)
     .set({ announcement, headline, subheadline, phone, email, address, updatedAt: new Date() })

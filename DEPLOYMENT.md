@@ -25,12 +25,12 @@ The first storefront request seeds the default settings, initial catalog, and th
 1. Import the repository into Vercel as a Next.js project.
 2. Add these Environment Variables for Production and Preview:
    - `SUPABASE_DATABASE_URL`
-   - `NEXT_PUBLIC_SITE_URL`
+   - `SITE_URL`
    - `ADMIN_USER_ID`
    - `ADMIN_PASSWORD`
    - `ADMIN_SESSION_SECRET`
 3. `DIRECT_DATABASE_URL` is only needed where you run Drizzle schema commands. It is not required by the deployed application at runtime.
-4. Deploy. `vercel.json` selects the Next.js framework and gives API handlers enough time for database operations.
+4. Deploy. The database connection is initialized on first use, so it is not needed just to compile the project. The database-backed storefront, orders, admin, and health check still require `SUPABASE_DATABASE_URL` at runtime.
 5. Verify `/api/health`, place a test order, open its receipt, and confirm it appears under **Admin → Orders**.
 
 Never put database passwords or admin secrets in `vercel.json`, source control, or variables prefixed with `NEXT_PUBLIC_`.

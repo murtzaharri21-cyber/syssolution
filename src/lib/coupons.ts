@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { coupons, type CouponRecord } from "@/db/schema";
 
 export type CouponResult = {
@@ -49,7 +49,7 @@ export async function validateCoupon(codeInput: unknown, subtotal: number): Prom
   if (!code) return invalid("Enter a coupon code.");
   if (!Number.isSafeInteger(subtotal) || subtotal < 1) return invalid("This order cannot use a coupon.");
 
-  const [coupon] = await db.select().from(coupons).where(eq(coupons.code, code)).limit(1);
+  const [coupon] = await getDb().select().from(coupons).where(eq(coupons.code, code)).limit(1);
   if (!coupon || !couponIsCurrentlyActive(coupon)) return invalid("That coupon is not active.");
   if (subtotal < coupon.minimumOrder) {
     return invalid(`This coupon needs a minimum order of PKR ${new Intl.NumberFormat("en-PK").format(coupon.minimumOrder)}.`);

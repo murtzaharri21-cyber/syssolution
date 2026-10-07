@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { coupons, orders, products, siteSettings } from "@/db/schema";
 import { couponIsCurrentlyActive } from "@/lib/coupons";
 
@@ -171,6 +171,7 @@ export const defaultSettings: typeof siteSettings.$inferInsert = {
 };
 
 export async function ensureStoreSeeded() {
+  const db = getDb();
   const [existingSettings] = await db
     .select({ id: siteSettings.id, initialized: siteSettings.initialized })
     .from(siteSettings)
@@ -208,6 +209,7 @@ export async function ensureStoreSeeded() {
 
 export async function getStoreSettings(): Promise<SiteSettingsRecord> {
   await ensureStoreSeeded();
+  const db = getDb();
   const [settings] = await db.select().from(siteSettings).where(eq(siteSettings.id, 1)).limit(1);
   if (!settings) throw new Error("Store settings could not be loaded.");
   return settings;
@@ -215,6 +217,7 @@ export async function getStoreSettings(): Promise<SiteSettingsRecord> {
 
 export async function getAvailableProducts() {
   await ensureStoreSeeded();
+  const db = getDb();
   return db
     .select()
     .from(products)
@@ -224,21 +227,25 @@ export async function getAvailableProducts() {
 
 export async function getAdminProducts() {
   await ensureStoreSeeded();
+  const db = getDb();
   return db.select().from(products).orderBy(asc(products.sortOrder), desc(products.createdAt));
 }
 
 export async function getAdminOrders() {
   await ensureStoreSeeded();
+  const db = getDb();
   return db.select().from(orders).orderBy(desc(orders.createdAt)).limit(100);
 }
 
 export async function getActiveCoupons() {
   await ensureStoreSeeded();
+  const db = getDb();
   const rows = await db.select().from(coupons).where(eq(coupons.isActive, true)).orderBy(desc(coupons.createdAt));
   return rows.filter((coupon) => couponIsCurrentlyActive(coupon));
 }
 
 export async function getAdminCoupons() {
   await ensureStoreSeeded();
+  const db = getDb();
   return db.select().from(coupons).orderBy(desc(coupons.createdAt));
 }

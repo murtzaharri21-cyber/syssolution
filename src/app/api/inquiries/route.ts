@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { inquiries } from "@/db/schema";
 
 export async function POST(request: Request) {
@@ -24,6 +24,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Add your name, a reachable phone number, and a short message." }, { status: 400 });
   }
 
-  await db.insert(inquiries).values({ name, phone, email, interest, message });
+  await getDb().insert(inquiries).values({ name, phone, email, interest, message });
   return NextResponse.json({ success: true }, { status: 201 });
 }

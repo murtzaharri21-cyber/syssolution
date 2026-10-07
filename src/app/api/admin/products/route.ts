@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { asc, desc } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { ensureStoreSeeded } from "@/lib/catalog";
@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   }
 
   await ensureStoreSeeded();
+  const db = getDb();
   const rows = await db.select().from(products).orderBy(asc(products.sortOrder), desc(products.createdAt));
   return NextResponse.json(rows);
 }
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
   }
 
   const slug = `${slugify(payload.name)}-${randomUUID().slice(0, 8)}`;
+  const db = getDb();
   const [product] = await db.insert(products).values({ ...payload, slug }).returning();
   return NextResponse.json(product, { status: 201 });
 }

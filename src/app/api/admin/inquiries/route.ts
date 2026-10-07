@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { inquiries } from "@/db/schema";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json({ error: "Admin sign-in required." }, { status: 401 });
   }
+  const db = getDb();
   const rows = await db.select().from(inquiries).orderBy(desc(inquiries.createdAt)).limit(100);
   return NextResponse.json(rows);
 }
@@ -26,6 +27,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid inquiry update." }, { status: 400 });
   }
 
+  const db = getDb();
   const [updated] = await db
     .update(inquiries)
     .set({ status })
