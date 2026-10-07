@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { CouponRecord, InquiryRecord, OrderRecord, ProductRecord, SiteSettingsRecord } from "@/db/schema";
 import { formatPrice } from "@/lib/money";
@@ -42,6 +42,7 @@ function AdminIcon({ name }: { name: "grid" | "ticket" | "bag" | "inbox" | "sett
 }
 
 export function AdminLogin() {
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,10 +56,11 @@ export function AdminLogin() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ userId, password }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not sign in.");
+      setUserId("");
       setPassword("");
       if (typeof result.session !== "string") throw new Error("Admin session could not be created.");
       window.location.assign(`/admin?session=${encodeURIComponent(result.session)}`);
@@ -79,13 +81,15 @@ export function AdminLogin() {
         <h1>Welcome back.</h1>
         <p className="admin-login-desc">Sign in to manage the SYS Solutions website, inventory and customer messages.</p>
         <form onSubmit={signIn} className="admin-login-form">
+          <label htmlFor="admin-user-id">User ID</label>
+          <input id="admin-user-id" type="text" required autoComplete="username" value={userId} onChange={(event) => setUserId(event.target.value)} placeholder="Enter your User ID" />
           <label htmlFor="admin-password">Admin password</label>
           <input id="admin-password" type="password" required autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" />
           {error && <p className="admin-form-error" role="alert">{error}</p>}
           <button className="admin-primary-button admin-login-submit" type="submit" disabled={loading}>{loading ? "Checking access…" : "Sign in securely"}<span>→</span></button>
         </form>
         <div className="admin-login-secure"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1.5" /><path d="M5.5 7V4.5a2.5 2.5 0 0 1 5 0V7" /></svg><span>Private, secure admin access</span></div>
-        <p className="admin-setup-hint">First time here? Configure <code>ADMIN_PASSWORD</code> and <code>ADMIN_SESSION_SECRET</code> in your server environment. See <a href="/admin-setup.html">admin setup</a>.</p>
+        <p className="admin-setup-hint">First time here? Configure <code>ADMIN_USER_ID</code>, <code>ADMIN_PASSWORD</code> and <code>ADMIN_SESSION_SECRET</code> in your server environment. See <a href="/admin-setup.html">admin setup</a>.</p>
       </div>
       <span className="admin-login-footer">SYS SOLUTIONS <i /> RAWALPINDI, PAKISTAN</span>
     </main>
@@ -128,6 +132,7 @@ export function AdminConsole({
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [updatingInquiry, setUpdatingInquiry] = useState<number | null>(null);
   const [updatingOrder, setUpdatingOrder] = useState<number | null>(null);
+  const [ordersSyncStatus, setOrdersSyncStatus] = useState("Updates automatically while this tab is open.");
 
   function adminHeaders(includeJson = true): HeadersInit {
     return {
@@ -135,6 +140,52 @@ export function AdminConsole({
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     };
   }
+
+  useEffect(() => {
+    if (activeTab !== "orders") return;
+
+    let disposed = false;
+    let requestPending = false;
+    const refreshOrders = async () => {
+      if (document.visibilityState === "hidden" || requestPending) return;
+      requestPending = true;
+      try {
+        const response = await fetch("/api/admin/orders", {
+          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          credentials: "include",
+          cache: "no-store",
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Could not refresh website orders.");
+        if (!Array.isArray(result)) throw new Error("The orders response was invalid.");
+
+        if (!disposed) {
+          setOrders((current) => (result as OrderRecord[]).map((order) => {
+            if (order.id !== updatingOrder) return order;
+            const currentOrder = current.find((item) => item.id === order.id);
+            return currentOrder ? { ...order, status: currentOrder.status } : order;
+          }));
+          setOrdersSyncStatus(`Live · updated ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
+        }
+      } catch {
+        if (!disposed) setOrdersSyncStatus("Orders aren't syncing right now. Retrying…");
+      } finally {
+        requestPending = false;
+      }
+    };
+
+    const interval = window.setInterval(() => void refreshOrders(), 5000);
+    window.addEventListener("focus", refreshOrders);
+    document.addEventListener("visibilitychange", refreshOrders);
+    void refreshOrders();
+
+    return () => {
+      disposed = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshOrders);
+      document.removeEventListener("visibilitychange", refreshOrders);
+    };
+  }, [accessToken, activeTab, updatingOrder]);
 
   const visibleProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -312,7 +363,7 @@ export function AdminConsole({
           {activeTab === "coupons" && <AdminCoupons initialCoupons={initialCoupons} />}
 
           {activeTab === "orders" && <section className="admin-work-card">
-            <div className="admin-card-heading"><div><span className="admin-eyebrow">FROM PRODUCT CARDS</span><h2>Website orders <span>{orders.length}</span></h2></div><span className="admin-inbox-tip">Customers order on the site, not WhatsApp</span></div>
+            <div className="admin-card-heading"><div><span className="admin-eyebrow">FROM PRODUCT CARDS</span><h2>Website orders <span>{orders.length}</span></h2></div><span className="admin-inbox-tip" role="status" aria-live="polite">{ordersSyncStatus}</span></div>
             {orders.length ? <div className="admin-inquiry-list">{orders.map((order) => <article className="admin-inquiry" key={order.id}>
               <div className="inquiry-avatar">{order.name.trim().charAt(0).toUpperCase()}</div>
               <div className="inquiry-body">

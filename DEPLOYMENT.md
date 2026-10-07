@@ -26,6 +26,7 @@ The first storefront request seeds the default settings, initial catalog, and th
 2. Add these Environment Variables for Production and Preview:
    - `SUPABASE_DATABASE_URL`
    - `NEXT_PUBLIC_SITE_URL`
+   - `ADMIN_USER_ID`
    - `ADMIN_PASSWORD`
    - `ADMIN_SESSION_SECRET`
 3. `DIRECT_DATABASE_URL` is only needed where you run Drizzle schema commands. It is not required by the deployed application at runtime.

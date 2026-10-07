@@ -15,8 +15,20 @@ function sign(payload: string) {
   return createHmac("sha256", sessionKey()).update(payload).digest("base64url");
 }
 
-export function adminPasswordIsConfigured() {
-  return Boolean(OPTION_A_PASSWORD_SHA256 || (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length >= 12));
+export function adminCredentialsAreConfigured() {
+  return Boolean(
+    process.env.ADMIN_USER_ID &&
+      (OPTION_A_PASSWORD_SHA256 || (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length >= 12)),
+  );
+}
+
+export function userIdsMatch(candidate: unknown) {
+  const expectedUserId = process.env.ADMIN_USER_ID;
+  if (typeof candidate !== "string" || !expectedUserId) return false;
+
+  const expected = Buffer.from(expectedUserId);
+  const received = Buffer.from(candidate);
+  return expected.length === received.length && timingSafeEqual(expected, received);
 }
 
 export function createAdminSession() {
@@ -58,8 +70,7 @@ export function passwordsMatch(candidate: unknown) {
   if (!expectedPassword) return optionAMatches;
   const expected = Buffer.from(expectedPassword);
   const received = Buffer.from(candidate);
-  const environmentMatches = expected.length === received.length && timingSafeEqual(expected, received);
-  return environmentMatches || optionAMatches;
+  return expected.length === received.length && timingSafeEqual(expected, received);
 }
 
 export const adminCookieOptions = process.env.NODE_ENV === "production"

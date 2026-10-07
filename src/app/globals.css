@@ -175,9 +175,9 @@ img { max-width: 100%; }
 .product-order .whatsapp-icon { width: 14px; height: 14px; }
 .product-order-muted { opacity: .55; }
 .order-backdrop { position: fixed; z-index: 80; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(12, 26, 19, .62); backdrop-filter: blur(8px); }
-.order-sheet { position: relative; width: min(100%, 1040px); max-height: min(92vh, 860px); display: grid; grid-template-columns: .92fr 1.08fr; overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 30px 90px rgba(10, 28, 18, .28); }
+.order-sheet { position: relative; width: min(100%, 1040px); height: min(92vh, 860px); max-height: min(92vh, 860px); display: grid; grid-template-columns: .92fr 1.08fr; grid-template-rows: minmax(0, 1fr); overflow: hidden; border-radius: 14px; background: #fff; box-shadow: 0 30px 90px rgba(10, 28, 18, .28); }
 .order-sheet-close { position: absolute; z-index: 3; right: 14px; top: 14px; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #e1e8df; border-radius: 50%; background: #fff; color: #5d6c61; font-size: 20px; cursor: pointer; }
-.order-sheet-media { overflow: auto; background: #f4f7f1; border-right: 1px solid #e4ebe0; }
+.order-sheet-media { min-height: 0; overflow: auto; background: #f4f7f1; border-right: 1px solid #e4ebe0; }
 .order-sheet-image { position: relative; height: 280px; background: radial-gradient(ellipse at 49% 74%, #fff 0, #f0f3ec 52%, #e9eee5 100%); }
 .order-sheet-image img { width: 100%; height: 100%; padding: 22px; object-fit: contain; mix-blend-mode: multiply; }
 .order-sheet-summary { padding: 22px 26px 28px; }
@@ -189,11 +189,13 @@ img { max-width: 100%; }
 .order-price-block { margin-top: 18px; }
 .order-price-block span { display: block; margin-bottom: 5px; color: #8f9b91; font-size: 8px; font-weight: 780; letter-spacing: .14em; }
 .order-price-block strong { color: #1f3528; font-size: 22px; font-weight: 720; letter-spacing: -.04em; }
-.order-sheet-form { overflow: auto; padding: 32px 30px 24px; }
+.order-sheet-form { display: flex; min-height: 0; flex-direction: column; overflow: hidden; padding: 32px 30px 24px; }
 .order-form-heading > span { color: #6f8770; font-size: 8px; font-weight: 780; letter-spacing: .16em; }
 .order-form-heading h3 { margin: 9px 0 6px; color: #203129; font-size: 22px; font-weight: 680; letter-spacing: -.05em; }
 .order-form-heading p { margin: 0 0 18px; color: #869087; font-size: 10px; line-height: 1.6; }
-.order-sheet-form form { display: flex; flex-direction: column; gap: 12px; }
+.order-sheet-form form { display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; }
+.order-form-fields { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 12px; overflow: auto; padding-bottom: 12px; }
+.order-form-fields > * { flex-shrink: 0; }
 .order-sheet-form label { display: block; color: #526157; font-size: 8px; font-weight: 680; }
 .order-sheet-form input, .order-sheet-form textarea { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #e0e6dd; border-radius: 3px; outline: 0; background: #fcfdfa; color: #27362c; font-size: 9px; }
 .order-sheet-form input:focus, .order-sheet-form textarea:focus { border-color: #9db392; box-shadow: 0 0 0 3px rgba(144,174,128,.13); }
@@ -322,6 +324,7 @@ img { max-width: 100%; }
 .honeypot { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
 .form-submit { min-height: 46px; justify-content: space-between; padding-inline: 15px; font-size: 9px; cursor: pointer; }
 .form-submit:disabled { cursor: wait; opacity: .72; }
+.order-form-actions { position: relative; z-index: 2; display: grid; flex-shrink: 0; gap: 10px; margin: 0 -30px -24px; padding: 12px 30px 24px; background: linear-gradient(180deg, rgba(255,255,255,0) 0, #fff 20px); }
 .form-feedback { margin: -3px 0 0; padding: 9px 10px; border-radius: 3px; font-size: 9px; line-height: 1.5; }
 .form-feedback-success { background: #eff7e8; color: #385e39; }
 .form-feedback-error { background: #fdf0ee; color: #934b40; }
@@ -751,7 +754,11 @@ img { max-width: 100%; }
   .dock-glyph-tiktok { width: 24px; height: 24px; }
   .dock-label { display: none; }
   .site-footer { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
-  .order-sheet { grid-template-columns: 1fr; max-height: 94vh; overflow: auto; }
+  .order-sheet { height: auto; max-height: 94vh; grid-template-columns: 1fr; grid-template-rows: auto; overflow: auto; }
+  .order-sheet-form { display: block; overflow: visible; }
+  .order-sheet-form form { display: flex; min-height: 0; flex: initial; overflow: visible; }
+  .order-form-fields { overflow: visible; }
+  .order-form-actions { position: sticky; bottom: -24px; }
   .order-sheet-media { border-right: 0; border-bottom: 1px solid #e4ebe0; }
   .order-sheet-image { height: 220px; }
   .admin-sidebar { width: 190px; }

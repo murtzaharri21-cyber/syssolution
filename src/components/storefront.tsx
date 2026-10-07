@@ -165,7 +165,7 @@ export default function Storefront({ products, settings, coupons }: StorefrontPr
 
       <section className="hero-section page-gutter" id="home">
         <div className="hero-frame">
-          {/* This locally generated image is the visual anchor for the laptop range. */}
+          {/* Hero photo asset should be bundled at this path. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="hero-photo" src="/images/sys-hero.png" alt="Graphite laptop with a vivid green display" />
           <div className="hero-sheen" />

@@ -167,6 +167,7 @@ export default function OrderCard({ product, shopAddress, coupons, onClose }: Or
             <>
               <div className="order-form-heading"><span>PLACE YOUR ORDER ON THE SITE</span><h3>Tell us how to get this laptop to you.</h3><p>Submit this card and SYS will confirm your order.</p></div>
               <form onSubmit={submitOrder}>
+                <div className="order-form-fields">
                 <div className="order-qty-row"><span>Quantity</span><div className="qty-stepper"><button type="button" onClick={() => changeQuantity(quantity - 1)} aria-label="Decrease quantity">−</button><strong>{quantity}</strong><button type="button" onClick={() => changeQuantity(quantity + 1)} aria-label="Increase quantity">+</button></div></div>
                 <div className="fulfillment-toggle" role="group" aria-label="How would you like to receive this laptop?"><button type="button" className={fulfillment === "pickup" ? "fulfillment-active" : ""} onClick={() => setFulfillment("pickup")}>Shop pickup</button><button type="button" className={fulfillment === "delivery" ? "fulfillment-active" : ""} onClick={() => setFulfillment("delivery")}>Delivery</button></div>
                 <p className="fulfillment-hint">{fulfillment === "pickup" ? `Collect from ${shopAddress}.` : "We’ll arrange delivery after confirming your order."}</p>
@@ -183,10 +184,13 @@ export default function OrderCard({ product, shopAddress, coupons, onClose }: Or
                 <label>Delivery address {fulfillment === "delivery" ? "" : <span className="optional-label">OPTIONAL</span>}<textarea required={fulfillment === "delivery"} minLength={fulfillment === "delivery" ? 8 : 0} maxLength={500} rows={2} value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} placeholder={fulfillment === "delivery" ? "House / street, area, city" : "Only needed if you want delivery"} /></label>
                 <label>Notes <span className="optional-label">OPTIONAL</span><textarea maxLength={2000} rows={2} value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Anything we should know before confirming?" /></label>
                 <label className="honeypot" aria-hidden="true">Leave this field empty<input tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} /></label>
-                <div className="order-total-breakdown"><div><span>Subtotal</span><strong>{formatPrice(subtotal)}</strong></div>{appliedCoupon && <div className="order-discount-line"><span>{appliedCoupon.code}</span><strong>− {formatPrice(appliedCoupon.discountAmount)}</strong></div>}<div className="order-total-row"><span>Order total</span><strong>{formatPrice(total)}</strong></div></div>
-                <button className="button button-dark form-submit" type="submit" disabled={status === "sending" || !product.isAvailable}>{status === "sending" ? "Placing your order…" : "Place order"}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12m-5-5 5 5-5 5" /></svg></button>
-                {message && status === "error" && <p className="form-feedback form-feedback-error" role="alert">{message}</p>}
-                <span className="form-privacy">Your details are only used to confirm this order.</span>
+                </div>
+                <div className="order-form-actions">
+                  <div className="order-total-breakdown"><div><span>Subtotal</span><strong>{formatPrice(subtotal)}</strong></div>{appliedCoupon && <div className="order-discount-line"><span>{appliedCoupon.code}</span><strong>− {formatPrice(appliedCoupon.discountAmount)}</strong></div>}<div className="order-total-row"><span>Order total</span><strong>{formatPrice(total)}</strong></div></div>
+                  <button className="button button-dark form-submit" type="submit" disabled={status === "sending" || !product.isAvailable}>{status === "sending" ? "Placing your order…" : "Place order"}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12m-5-5 5 5-5 5" /></svg></button>
+                  {message && status === "error" && <p className="form-feedback form-feedback-error" role="alert">{message}</p>}
+                  <span className="form-privacy">Your details are only used to confirm this order.</span>
+                </div>
               </form>
             </>
           )}
