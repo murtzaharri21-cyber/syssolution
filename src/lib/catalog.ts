@@ -180,6 +180,8 @@ async function seedStore() {
     .where(eq(siteSettings.id, 1))
     .limit(1);
 
+  if (existingSettings?.initialized) return;
+
   if (!existingSettings) {
     await db.insert(siteSettings).values(defaultSettings).onConflictDoNothing();
   }
