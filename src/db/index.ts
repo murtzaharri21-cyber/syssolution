@@ -24,7 +24,8 @@ export function getDb() {
   const database = drizzle(postgres(databaseUrl, {
     prepare: false,
     max: process.env.VERCEL ? 1 : 5,
-    idle_timeout: 20,
+    idle_timeout: process.env.VERCEL ? 5 : 20,
+    max_lifetime: process.env.VERCEL ? 60 : null,
     connect_timeout: 10,
   }));
 
