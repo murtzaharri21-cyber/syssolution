@@ -170,13 +170,17 @@ export const defaultSettings: typeof siteSettings.$inferInsert = {
   address: "Shop 36, 2nd floor, TechnoCity II, 6th Road, Rawalpindi",
 };
 
-export async function ensureStoreSeeded() {
+let storeSeedPromise: Promise<void> | undefined;
+
+async function seedStore() {
   const db = getDb();
   const [existingSettings] = await db
     .select({ id: siteSettings.id, initialized: siteSettings.initialized })
     .from(siteSettings)
     .where(eq(siteSettings.id, 1))
     .limit(1);
+
+  if (existingSettings?.initialized) return;
 
   if (!existingSettings) {
     await db.insert(siteSettings).values(defaultSettings).onConflictDoNothing();
@@ -205,6 +209,16 @@ export async function ensureStoreSeeded() {
   }
 
   await db.insert(coupons).values(defaultCoupon).onConflictDoNothing();
+}
+
+export function ensureStoreSeeded() {
+  if (!storeSeedPromise) {
+    storeSeedPromise = seedStore().catch((error: unknown) => {
+      storeSeedPromise = undefined;
+      throw error;
+    });
+  }
+  return storeSeedPromise;
 }
 
 export async function getStoreSettings(): Promise<SiteSettingsRecord> {
