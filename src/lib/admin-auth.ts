@@ -1,14 +1,10 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 export const ADMIN_COOKIE = "sys_admin_session";
 const SESSION_MAX_AGE = 60 * 60 * 8;
-// One-way verifier for the documented Option A bootstrap password. The
-// plaintext password is never stored in the source or sent to the browser.
-const OPTION_A_PASSWORD_SHA256 = "d3c7c0def5a6174cd7440315bad2d8ef932f438d0eb0e9481d01c2b88b4f4034";
-
 function sessionKey() {
-  return process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || "";
+  return process.env.ADMIN_SESSION_SECRET || "";
 }
 
 function sign(payload: string) {
@@ -18,7 +14,9 @@ function sign(payload: string) {
 export function adminCredentialsAreConfigured() {
   return Boolean(
     process.env.ADMIN_USER_ID &&
-      (OPTION_A_PASSWORD_SHA256 || (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length >= 12)),
+      process.env.ADMIN_PASSWORD &&
+      process.env.ADMIN_PASSWORD.length >= 12 &&
+      process.env.ADMIN_SESSION_SECRET,
   );
 }
 
@@ -61,13 +59,8 @@ export async function isAdminAuthenticated(request?: Request) {
 export function passwordsMatch(candidate: unknown) {
   if (typeof candidate !== "string") return false;
 
-  const candidateDigest = createHash("sha256").update(candidate).digest();
-  const optionADigest = Buffer.from(OPTION_A_PASSWORD_SHA256, "hex");
-  const optionAMatches =
-    candidateDigest.length === optionADigest.length && timingSafeEqual(candidateDigest, optionADigest);
-
   const expectedPassword = process.env.ADMIN_PASSWORD;
-  if (!expectedPassword) return optionAMatches;
+  if (!expectedPassword || expectedPassword.length < 12) return false;
   const expected = Buffer.from(expectedPassword);
   const received = Buffer.from(candidate);
   return expected.length === received.length && timingSafeEqual(expected, received);
