@@ -4,6 +4,8 @@ import { getActiveCoupons, getAvailableProducts, getStoreSettings } from "@/lib/
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [products, settings, coupons] = await Promise.all([getAvailableProducts(), getStoreSettings(), getActiveCoupons()]);
+  const products = await getAvailableProducts();
+  const settings = await getStoreSettings();
+  const coupons = await getActiveCoupons();
   return <Storefront products={products} settings={settings} coupons={coupons} />;
 }

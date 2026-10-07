@@ -13,13 +13,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   if (!(await isAdminAuthenticated()) && !accessToken) return <AdminLogin />;
 
   const db = getDb();
-  const [products, inbox, websiteOrders, coupons, settings] = await Promise.all([
-    getAdminProducts(),
-    db.select().from(inquiries).orderBy(desc(inquiries.createdAt)).limit(100),
-    getAdminOrders(),
-    getAdminCoupons(),
-    getStoreSettings(),
-  ]);
+  const products = await getAdminProducts();
+  const inbox = await db.select().from(inquiries).orderBy(desc(inquiries.createdAt)).limit(100);
+  const websiteOrders = await getAdminOrders();
+  const coupons = await getAdminCoupons();
+  const settings = await getStoreSettings();
 
   return <AdminConsole initialProducts={products} initialInquiries={inbox} initialOrders={websiteOrders} initialCoupons={coupons} settings={settings} accessToken={accessToken} />;
 }
