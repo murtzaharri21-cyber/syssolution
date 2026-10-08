@@ -116,6 +116,9 @@ export function AdminConsole({
   const [products, setProducts] = useState(initialProducts);
   const [inquiries, setInquiries] = useState(initialInquiries);
   const [orders, setOrders] = useState(initialOrders);
+  const [coupons, setCoupons] = useState(initialCoupons);
+  const [initialDataLoading, setInitialDataLoading] = useState(true);
+  const [initialDataError, setInitialDataError] = useState("");
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductRecord | null>(null);
@@ -140,6 +143,59 @@ export function AdminConsole({
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     };
   }
+
+  useEffect(() => {
+    let disposed = false;
+
+    async function loadDashboardData() {
+      try {
+        async function loadJson<T>(url: string): Promise<T> {
+          const response = await fetch(url, {
+            headers: adminHeaders(false),
+            credentials: "include",
+            cache: "no-store",
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || `Could not load ${url}.`);
+          return result;
+        }
+
+        const loadedProducts = await loadJson<ProductRecord[]>("/api/admin/products");
+        if (disposed) return;
+        setProducts(loadedProducts);
+        const loadedInquiries = await loadJson<InquiryRecord[]>("/api/admin/inquiries");
+        if (disposed) return;
+        setInquiries(loadedInquiries);
+        const loadedOrders = await loadJson<OrderRecord[]>("/api/admin/orders");
+        if (disposed) return;
+        setOrders(loadedOrders);
+        const loadedCoupons = await loadJson<CouponRecord[]>("/api/admin/coupons");
+        if (disposed) return;
+        setCoupons(loadedCoupons);
+        const loadedSettings = await loadJson<SiteSettingsRecord>("/api/admin/settings");
+        if (disposed) return;
+
+        setSettingsForm({
+          announcement: loadedSettings.announcement,
+          headline: loadedSettings.headline,
+          subheadline: loadedSettings.subheadline,
+          phone: loadedSettings.phone,
+          email: loadedSettings.email,
+          address: loadedSettings.address,
+        });
+        setInitialDataError("");
+      } catch (error) {
+        if (!disposed) {
+          setInitialDataError(error instanceof Error ? error.message : "Could not load the admin dashboard data.");
+        }
+      } finally {
+        if (!disposed) setInitialDataLoading(false);
+      }
+    }
+
+    void loadDashboardData();
+    return () => { disposed = true; };
+  }, [accessToken]);
 
   useEffect(() => {
     if (activeTab !== "orders") return;
@@ -319,7 +375,7 @@ export function AdminConsole({
         <div className="admin-sidebar-label">WORKSPACE</div>
         <nav className="admin-side-nav" aria-label="Admin navigation">
           <button type="button" className={activeTab === "inventory" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("inventory")}><AdminIcon name="grid" /><span>Inventory</span><small>{products.length}</small></button>
-          <button type="button" className={activeTab === "coupons" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("coupons")}><AdminIcon name="ticket" /><span>Coupons</span><small>{initialCoupons.length}</small></button>
+          <button type="button" className={activeTab === "coupons" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("coupons")}><AdminIcon name="ticket" /><span>Coupons</span><small>{coupons.length}</small></button>
           <button type="button" className={activeTab === "orders" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("orders")}><AdminIcon name="bag" /><span>Orders</span>{newOrderCount > 0 && <small className="admin-nav-unread">{newOrderCount}</small>}</button>
           <button type="button" className={activeTab === "inquiries" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("inquiries")}><AdminIcon name="inbox" /><span>Inquiries</span>{newInquiryCount > 0 && <small className="admin-nav-unread">{newInquiryCount}</small>}</button>
           <button type="button" className={activeTab === "website" ? "admin-nav-item admin-nav-active" : "admin-nav-item"} onClick={() => setActiveTab("website")}><AdminIcon name="settings" /><span>Website details</span></button>
@@ -334,6 +390,9 @@ export function AdminConsole({
         <header className="admin-topbar"><div className="admin-breadcrumb"><span>SYS SOLUTIONS</span><i>/</i><strong>{sectionTitles[activeTab].eyebrow}</strong></div><div className="admin-topbar-actions"><span className="admin-secure-label"><i /> Secure admin</span><a className="admin-preview-link" href="/" target="_blank" rel="noreferrer">Preview site <span>↗</span></a><button className="admin-signout-mobile" type="button" onClick={signOut} disabled={logoutLoading}>Sign out</button></div></header>
         <main className="admin-content">
           <div className="admin-page-heading"><div><span className="admin-eyebrow">{sectionTitles[activeTab].eyebrow} <i /> SYS CONTROL DESK</span><h1>{sectionTitles[activeTab].title}</h1><p>{sectionTitles[activeTab].description}</p></div><span className="admin-live-pill"><i /> LIVE WEBSITE</span></div>
+
+          {initialDataLoading && <p role="status">Loading dashboard data…</p>}
+          {initialDataError && <div className="admin-notice admin-notice-error" role="alert">{initialDataError} <button type="button" onClick={() => window.location.reload()}>Retry</button></div>}
 
           <div className="admin-metrics">
             <div className="admin-metric-card"><span className="admin-metric-label">TOTAL LISTINGS</span><strong>{products.length.toString().padStart(2, "0")}</strong><span className="admin-metric-foot">Across your inventory</span><span className="admin-metric-icon">▤</span></div>
@@ -360,7 +419,7 @@ export function AdminConsole({
             <div className="admin-table-footer"><span><i /> Inventory saved to Supabase PostgreSQL</span><span>Every listing needs a PKR price before it can be ordered</span></div>
           </section>}
 
-          {activeTab === "coupons" && <AdminCoupons initialCoupons={initialCoupons} />}
+          {activeTab === "coupons" && <AdminCoupons key={coupons.map((coupon) => coupon.id).join(",")} initialCoupons={coupons} accessToken={accessToken} />}
 
           {activeTab === "orders" && <section className="admin-work-card">
             <div className="admin-card-heading"><div><span className="admin-eyebrow">FROM PRODUCT CARDS</span><h2>Website orders <span>{orders.length}</span></h2></div><span className="admin-inbox-tip" role="status" aria-live="polite">{ordersSyncStatus}</span></div>

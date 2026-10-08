@@ -21,11 +21,9 @@ export default async function ReceiptPage({ params }: ReceiptPageProps) {
   if (!/^[0-9a-f-]{36}$/i.test(token)) notFound();
 
   const db = getDb();
-  const [[order], settings] = await Promise.all([
-    db.select().from(orders).where(eq(orders.receiptToken, token)).limit(1),
-    getStoreSettings(),
-  ]);
+  const [order] = await db.select().from(orders).where(eq(orders.receiptToken, token)).limit(1);
   if (!order) notFound();
+  const settings = await getStoreSettings();
 
   const subtotal = order.subtotal || order.productPrice * order.quantity;
   const total = order.totalAmount || Math.max(0, subtotal - order.discountAmount);
