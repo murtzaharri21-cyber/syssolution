@@ -1,0 +1,70 @@
+/* Keep admin controls and supporting copy readable without changing headings. */
+.admin-sidebar-label { font-size: 10px; }
+.admin-nav-item { font-size: 13px; }
+.admin-nav-item > small,
+.admin-nav-item .admin-nav-unread { font-size: 12px; }
+.admin-sidebar-status strong,
+.admin-sidebar-user strong { font-size: 12px; }
+.admin-sidebar-status small,
+.admin-sidebar-user small { font-size: 11px; }
+.admin-sidebar-store-link,
+.admin-preview-link,
+.admin-secure-label { font-size: 12px; }
+.admin-breadcrumb { font-size: 10px; }
+.admin-breadcrumb strong { font-size: 10px; }
+.admin-eyebrow { font-size: 10px; }
+.admin-page-heading p { font-size: 14px; }
+.admin-live-pill,
+.admin-metric-label { font-size: 10px; }
+.admin-metric-foot { font-size: 12px; }
+.admin-notice { font-size: 13px; }
+.admin-search input { font-size: 14px; }
+.admin-table-toolbar > span { font-size: 12px; }
+.admin-table th { font-size: 10px; }
+.admin-table td,
+.admin-spec-cell { font-size: 12px; }
+.admin-product-cell > span > strong { font-size: 13px; }
+.admin-product-cell > span > small,
+.admin-spec-sub { font-size: 11px; }
+.admin-price { font-size: 13px; }
+.admin-status { font-size: 11px; }
+.admin-featured { font-size: 12px; }
+.admin-row-actions button { font-size: 12px; }
+.admin-table-footer,
+.admin-footnote { font-size: 11px; }
+.inquiry-topline > strong { font-size: 13px; }
+.inquiry-topline > span:nth-child(2),
+.inquiry-status-control > span { font-size: 10px; }
+.admin-status-dot { font-size: 11px; }
+.inquiry-interest { font-size: 12px; }
+.inquiry-message { font-size: 13px; }
+.inquiry-contact-links a { font-size: 12px; }
+.inquiry-status-control select { font-size: 12px; }
+.admin-empty-state p,
+.admin-settings-group > div:first-child p,
+.admin-social-note p { font-size: 12px; }
+.admin-edit-note,
+.admin-inbox-tip { font-size: 12px; }
+.settings-group-number { font-size: 11px; }
+.admin-settings-fields label,
+.admin-product-form-grid > label,
+.admin-form-toggles label { font-size: 12px; }
+.admin-settings-fields input,
+.admin-settings-fields textarea,
+.admin-product-form-grid input,
+.admin-product-form-grid textarea,
+.admin-product-form-grid select { font-size: 15px; }
+.admin-settings-fields label > small { font-size: 11px; }
+.admin-settings-feedback { font-size: 12px; }
+.admin-settings-actions > span { font-size: 11px; }
+.admin-modal-header p { font-size: 12px; }
+.admin-modal-cancel,
+.admin-modal-actions .admin-primary-button { font-size: 12px; }
+.coupon-admin-code > span { font-size: 12px; }
+.coupon-admin-code small,
+.coupon-admin-usage span { font-size: 10px; }
+.coupon-admin-info strong { font-size: 13px; }
+.coupon-admin-info p { font-size: 12px; }
+.coupon-admin-info > span { font-size: 11px; }
+.coupon-admin-usage strong { font-size: 14px; }
+.admin-content > p { font-size: 14px; }

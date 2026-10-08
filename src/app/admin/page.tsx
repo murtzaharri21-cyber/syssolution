@@ -1,3 +1,5 @@
+import "./admin-readable.css";
+
 import { AdminConsole, AdminLogin } from "@/components/admin-console";
 import { defaultSettings } from "@/lib/catalog";
 import { isAdminAuthenticated, isValidAdminSession } from "@/lib/admin-auth";
