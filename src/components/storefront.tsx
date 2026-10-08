@@ -67,7 +67,7 @@ function ProductCard({ product, onOpen }: { product: ProductRecord; onOpen: (pro
           <div className="product-card-bottom">
             <div><span className="price-caption">PRICE</span><strong>{formatPrice(product.price)}</strong></div>
             <span className={`product-order${!product.isAvailable ? " product-order-muted" : ""}`}>
-              <span>Order now</span><ArrowIcon />
+              <span>Place order</span><ArrowIcon />
             </span>
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function Storefront({ products, settings, coupons }: StorefrontPr
       </footer>
 
       <SocialDock className="mobile-dock" />
-      {selectedProduct && <OrderCard product={selectedProduct} shopAddress={settings.address} coupons={coupons} onClose={() => setSelectedProduct(null)} />}
+      {selectedProduct && <OrderCard product={selectedProduct} shopAddress={settings.address} shopPhone={settings.phone} coupons={coupons} onClose={() => setSelectedProduct(null)} />}
     </main>
   );
 }

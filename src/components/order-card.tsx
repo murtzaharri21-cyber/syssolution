@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/money";
 type OrderCardProps = {
   product: ProductRecord;
   shopAddress: string;
+  shopPhone: string;
   coupons: CouponRecord[];
   onClose: () => void;
 };
@@ -29,7 +30,7 @@ type ReceiptResult = {
 
 const emptyForm = { name: "", phone: "", email: "", city: "", address: "", notes: "", website: "" };
 
-export default function OrderCard({ product, shopAddress, coupons, onClose }: OrderCardProps) {
+export default function OrderCard({ product, shopAddress, shopPhone, coupons, onClose }: OrderCardProps) {
   const [quantity, setQuantity] = useState(1);
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
   const [form, setForm] = useState(emptyForm);
@@ -45,6 +46,7 @@ export default function OrderCard({ product, shopAddress, coupons, onClose }: Or
   const subtotal = unitPrice * quantity;
   const total = appliedCoupon?.total ?? subtotal;
   const featuredCoupon = coupons[0];
+  const quoteLink = `https://wa.me/${shopPhone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in the ${product.name}. Please confirm its current price and availability.`)}`;
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -162,6 +164,16 @@ export default function OrderCard({ product, shopAddress, coupons, onClose }: Or
                 <a className="button button-dark" href={`/receipt/${receipt.receiptToken}`}>View receipt</a>
                 <button className="button order-secondary-button" type="button" onClick={onClose}>Continue shopping</button>
               </div>
+            </div>
+          ) : product.price === null ? (
+            <div className="order-form-heading">
+              <span>PRICE ON REQUEST</span>
+              <h3>Place your order request.</h3>
+              <p>Message SYS to confirm the current price and availability before your order is finalized.</p>
+              <a className="button button-dark" href={quoteLink} target="_blank" rel="noopener noreferrer">
+                Place order
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M6 5h9v9" /></svg>
+              </a>
             </div>
           ) : (
             <>
